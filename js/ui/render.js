@@ -11,18 +11,21 @@ export function initRender() {
   on('personas:changed', () => {
     sidebar.render();
     chatHeader.render();
+    chatInput.render();
   });
 
   on('view:changed', () => {
     router.navigate(state.view);
     settingsPanel.render();
     personaForm.render();
+    chatInput.render();
   });
 
   on('conversation:updated', () => {
     sidebar.render();
     messageList.render();
     chatHeader.render();
+    chatInput.render();
   });
 
   on('loading:changed', () => {
@@ -37,5 +40,6 @@ export function initRender() {
     sidebar.render();
     messageList.render();
     chatHeader.render();
+    chatInput.render();
   });
 }

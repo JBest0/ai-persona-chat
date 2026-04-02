@@ -216,6 +216,7 @@ function init() {
   sidebar.render();
   messageList.render();
   chatHeader.render();
+  chatInput.render();
   router.navigate(state.view);
 
   window.addEventListener('keydown', (e) => {
