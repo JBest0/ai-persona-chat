@@ -40,19 +40,18 @@ export const chatInput = {
           ${attached ? `<img src="${attached.preview}" alt="preview"><button class="icon-btn" id="remove-image">×</button>` : ''}
         </div>
         <div class="input-row">
-          <button class="icon-btn" id="attach-image" ${isDisabled ? 'disabled' : ''}>📎</button>
+          <label class="icon-btn" id="attach-image-label" for="image-input-field">📎</label>
           <textarea id="message-text" placeholder="${canChat ? 'Type a message' : 'Select or create a persona to start chatting'}" ${isDisabled ? 'disabled' : ''}></textarea>
           <button class="btn primary" id="send-btn" ${isDisabled ? 'disabled' : ''}>Send</button>
         </div>
-        <input id="image-input" type="file" accept="image/*" hidden>
+        <input id="image-input-field" type="file" accept="image/*" style="display:none">
         <div class="input-error" id="input-error">${canChat ? '' : 'Chat is disabled until a persona is selected.'}</div>
       </div>
     `;
 
     const ta = root.querySelector('#message-text');
     const send = root.querySelector('#send-btn');
-    const attach = root.querySelector('#attach-image');
-    const imageInput = root.querySelector('#image-input');
+    const imageInput = root.querySelector('#image-input-field');
     const err = root.querySelector('#input-error');
 
     const doSend = async () => {
@@ -82,8 +81,8 @@ export const chatInput = {
 
     send?.addEventListener('click', doSend);
 
-    attach?.addEventListener('click', () => imageInput?.click());
     imageInput?.addEventListener('change', async () => {
+      if (isDisabled) return;
       const file = imageInput.files?.[0];
       if (!file) return;
       if (file.size > 5 * 1024 * 1024) {

@@ -75,13 +75,12 @@ export const chatService = {
     let imageDescription = '';
 
     if (args.imageBase64) {
-      if (!ensureKey('gemini')) throw new Error('Add your Gemini API key in Settings');
+      if (!ensureKey('gemini')) throw new Error('A Gemini API key is required to send images. Add it in Settings');
       imageDescription = await describeImage({
         imageBase64: args.imageBase64,
         mimeType: args.imageMimeType || 'image/png',
-        contextPrompt: 'Describe this image briefly for a text conversation, focusing on what a friend would notice.',
+        contextPrompt: 'Describe this image in detail so that someone who cannot see it can fully understand its content, mood, setting, people, objects, text, and any notable details. Be specific and concrete.',
       });
-      content = `${content}\n[User sent an image. Description: ${imageDescription}]`.trim();
     }
 
     const userMsg = conversationService.addMessage(args.personaId, {
@@ -120,7 +119,7 @@ export const chatService = {
       await sleep(Math.random() * 1500 + 500);
 
       const history = conversationService.trimToTokenBudget(convo.messages.filter((m) => m.id !== assistant.id), 12000);
-      const systemPrompt = buildSystemPrompt(persona);
+      const systemPrompt = buildSystemPrompt(persona, imageDescription);
       let output = '';
 
       if (provider === 'anthropic') {

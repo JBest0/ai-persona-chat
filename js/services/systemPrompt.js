@@ -39,10 +39,10 @@ const FIELD_LABELS = {
 
 /**
  * @param {Persona} persona
- * @param {string} [conversationContext]
+ * @param {string} [imageContext]
  * @returns {string}
  */
-export function build(persona, conversationContext) {
+export function build(persona, imageContext) {
   const lines = [];
   lines.push(`You are ${persona.name}. You are not an AI assistant. You are a real person having a text conversation. Never break character. Never mention being an AI.`);
   lines.push('');
@@ -65,9 +65,9 @@ export function build(persona, conversationContext) {
   lines.push('- Occasionally make typos or informal punctuation if this persona would do that.');
   lines.push('- If web search results appear in the conversation, weave them in naturally and never announce searching.');
 
-  if (conversationContext && conversationContext.trim()) {
+  if (imageContext && imageContext.trim()) {
     lines.push('');
-    lines.push(`Things you know about the person you are talking to: ${conversationContext.trim()}`);
+    lines.push(`[The user just sent an image. Here is what it shows: ${imageContext.trim()}. React naturally to it as your character would - comment on it, ask about it, or respond to it in a way that fits your personality.]`);
   }
 
   return lines.join('\n');
