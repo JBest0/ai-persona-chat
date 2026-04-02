@@ -29,10 +29,10 @@ export const chatInput = {
   },
 
   render() {
-    if (!state.activePersonaId) {
-      root.innerHTML = '';
-      return;
-    }
+    if (!root) return;
+
+    const canChat = Boolean(state.activePersonaId);
+    const isDisabled = disabled || !canChat;
 
     root.innerHTML = `
       <div class="chat-input">
@@ -40,12 +40,12 @@ export const chatInput = {
           ${attached ? `<img src="${attached.preview}" alt="preview"><button class="icon-btn" id="remove-image">×</button>` : ''}
         </div>
         <div class="input-row">
-          <button class="icon-btn" id="attach-image" ${disabled ? 'disabled' : ''}>📎</button>
-          <textarea id="message-text" placeholder="Type a message" ${disabled ? 'disabled' : ''}></textarea>
-          <button class="btn primary" id="send-btn" ${disabled ? 'disabled' : ''}>Send</button>
+          <button class="icon-btn" id="attach-image" ${isDisabled ? 'disabled' : ''}>📎</button>
+          <textarea id="message-text" placeholder="${canChat ? 'Type a message' : 'Select or create a persona to start chatting'}" ${isDisabled ? 'disabled' : ''}></textarea>
+          <button class="btn primary" id="send-btn" ${isDisabled ? 'disabled' : ''}>Send</button>
         </div>
         <input id="image-input" type="file" accept="image/*" hidden>
-        <div class="input-error" id="input-error"></div>
+        <div class="input-error" id="input-error">${canChat ? '' : 'Chat is disabled until a persona is selected.'}</div>
       </div>
     `;
 
@@ -56,7 +56,7 @@ export const chatInput = {
     const err = root.querySelector('#input-error');
 
     const doSend = async () => {
-      if (disabled) return;
+      if (isDisabled) return;
       const text = ta.value.trim();
       if (!text && !attached) return;
 
