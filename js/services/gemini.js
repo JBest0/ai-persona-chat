@@ -6,7 +6,7 @@ import { getEndpoint, getHeaders } from './api.js';
  * @returns {Promise<string>}
  */
 export async function describeImage(args) {
-  const rawUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash:generateContent?key=${state.settings.keys.gemini || ''}`;
+  const rawUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${state.settings.keys.gemini || ''}`;
   const url = getEndpoint(rawUrl);
 
   const body = {
