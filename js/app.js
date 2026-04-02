@@ -170,6 +170,7 @@ function init() {
     keys: {},
     proxyEnabled: false,
     proxyUrl: '',
+    visionModel: 'gemini-2.5-flash',
     ...(storage.get('settings') || {}),
   };
 

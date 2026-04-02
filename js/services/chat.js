@@ -114,6 +114,7 @@ export const chatService = {
             imageBase64: args.imageBase64,
             mimeType: args.imageMimeType || 'image/png',
             contextPrompt: 'Describe this image in detail so that someone who cannot see it can fully understand its content, mood, setting, people, objects, text, and any notable details. Be specific and concrete.',
+            model: state.settings.visionModel,
           });
         } catch (err) {
           const reason = isCorsError(err)

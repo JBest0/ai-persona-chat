@@ -1,4 +1,5 @@
 import { state } from '../../state.js';
+import { VISION_MODELS, DEFAULT_VISION_MODEL } from '../../services/gemini.js';
 
 let handlers = {
   onSave: () => {},
@@ -36,11 +37,22 @@ export const settingsPanel = {
       </div>
     `).join('');
 
+    const selectedVisionModel = state.settings.visionModel || DEFAULT_VISION_MODEL;
+    const visionOptions = VISION_MODELS.map((m) => `<option value="${m.id}" ${selectedVisionModel === m.id ? 'selected' : ''}>${m.label}</option>`).join('');
+
     root.innerHTML = `
       <div class="card settings-wrap">
         <h2>Settings</h2>
         <form id="settings-form" class="form-grid">
           ${rows}
+
+          <div class="field" style="grid-column:1/-1;">
+            <label>Vision Model (for image descriptions)</label>
+            <select name="visionModel">
+              ${visionOptions}
+            </select>
+            <small>Used when you send an image. Stable models are more reliable; preview models may hit quota limits.</small>
+          </div>
 
           <div class="field" style="grid-column:1/-1;border-top:1px solid #dbcdb7;padding-top:12px;">
             <h3>CORS</h3>
@@ -67,6 +79,7 @@ export const settingsPanel = {
         keys,
         proxyEnabled: fd.get('proxyEnabled') === 'on',
         proxyUrl: String(fd.get('proxyUrl') || '').trim(),
+        visionModel: String(fd.get('visionModel') || DEFAULT_VISION_MODEL),
       });
     });
   },

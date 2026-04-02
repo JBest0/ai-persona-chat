@@ -20,6 +20,7 @@ export const state = {
     keys: {},
     proxyEnabled: false,
     proxyUrl: '',
+    visionModel: 'gemini-2.5-flash',
   },
 
   /** @type {boolean} */

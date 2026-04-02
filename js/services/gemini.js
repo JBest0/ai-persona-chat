@@ -1,12 +1,21 @@
 import { state } from '../state.js';
 import { getEndpoint, getHeaders } from './api.js';
 
+export const VISION_MODELS = [
+  { id: 'gemini-2.5-flash', label: 'Gemini 2.5 Flash (stable, recommended)' },
+  { id: 'gemini-2.5-pro', label: 'Gemini 2.5 Pro (stable, best quality)' },
+  { id: 'gemini-3-flash-preview', label: 'Gemini 3 Flash Preview (latest, may have quota issues)' },
+];
+
+export const DEFAULT_VISION_MODEL = 'gemini-2.5-flash';
+
 /**
- * @param {{ imageBase64: string, mimeType: string, contextPrompt: string }} args
+ * @param {{ imageBase64: string, mimeType: string, contextPrompt: string, model?: string }} args
  * @returns {Promise<string>}
  */
 export async function describeImage(args) {
-  const rawUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${state.settings.keys.gemini || ''}`;
+  const model = args.model || DEFAULT_VISION_MODEL;
+  const rawUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${state.settings.keys.gemini || ''}`;
   const url = getEndpoint(rawUrl);
 
   const body = {
