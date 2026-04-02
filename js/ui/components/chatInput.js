@@ -8,11 +8,42 @@ const root = document.getElementById('chat-input');
 let attached = null;
 let disabled = false;
 
-function fileToBase64(file) {
+const MAX_IMAGE_PX = 1024;
+
+function resizeAndEncodeImage(file) {
   return new Promise((resolve, reject) => {
     const fr = new FileReader();
-    fr.onload = () => resolve(String(fr.result).split(',')[1]);
     fr.onerror = reject;
+    fr.onload = () => {
+      const img = new Image();
+      img.onerror = reject;
+      img.onload = () => {
+        // Calculate new dimensions keeping aspect ratio
+        let { width, height } = img;
+        if (width > MAX_IMAGE_PX || height > MAX_IMAGE_PX) {
+          if (width >= height) {
+            height = Math.round((height / width) * MAX_IMAGE_PX);
+            width = MAX_IMAGE_PX;
+          } else {
+            width = Math.round((width / height) * MAX_IMAGE_PX);
+            height = MAX_IMAGE_PX;
+          }
+        }
+
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+
+        // Always encode as JPEG for smaller size, quality 0.85
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+        resolve({
+          base64: dataUrl.split(',')[1],
+          mimeType: 'image/jpeg',
+        });
+      };
+      img.src = String(fr.result);
+    };
     fr.readAsDataURL(file);
   });
 }
@@ -85,15 +116,16 @@ export const chatInput = {
       if (isDisabled) return;
       const file = imageInput.files?.[0];
       if (!file) return;
-      if (file.size > 5 * 1024 * 1024) {
-        err.textContent = 'Image too large. Max 5MB.';
+      if (file.size > 20 * 1024 * 1024) {
+        err.textContent = 'Image too large. Max 20MB.';
         return;
       }
       err.textContent = '';
+      const { base64, mimeType } = await resizeAndEncodeImage(file);
       attached = {
         file,
-        mimeType: file.type || 'image/png',
-        base64: await fileToBase64(file),
+        mimeType,
+        base64,
         preview: URL.createObjectURL(file),
       };
       this.render();
