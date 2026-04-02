@@ -74,15 +74,6 @@ export const chatService = {
     let content = (args.content || '').trim();
     let imageDescription = '';
 
-    if (args.imageBase64) {
-      if (!ensureKey('gemini')) throw new Error('A Gemini API key is required to send images. Add it in Settings');
-      imageDescription = await describeImage({
-        imageBase64: args.imageBase64,
-        mimeType: args.imageMimeType || 'image/png',
-        contextPrompt: 'Describe this image in detail so that someone who cannot see it can fully understand its content, mood, setting, people, objects, text, and any notable details. Be specific and concrete.',
-      });
-    }
-
     const userMsg = conversationService.addMessage(args.personaId, {
       role: 'user',
       contentType: args.imageBase64 ? 'image' : 'text',
@@ -116,6 +107,27 @@ export const chatService = {
     });
 
     try {
+      if (args.imageBase64) {
+        try {
+          if (!ensureKey('gemini')) throw new Error('A Gemini API key is required to send images. Add it in Settings');
+          imageDescription = await describeImage({
+            imageBase64: args.imageBase64,
+            mimeType: args.imageMimeType || 'image/png',
+            contextPrompt: 'Describe this image in detail so that someone who cannot see it can fully understand its content, mood, setting, people, objects, text, and any notable details. Be specific and concrete.',
+          });
+        } catch (err) {
+          const reason = isCorsError(err)
+            ? 'Unable to analyze the image due to a network/CORS issue. Try enabling the proxy in Settings.'
+            : String(err?.message || err || 'Unable to analyze the image.');
+          conversationService.updateMessage(args.personaId, assistant.id, {
+            text: `I could not read that image. ${reason}`,
+            isStreaming: false,
+            modelUsed: model,
+          });
+          return;
+        }
+      }
+
       await sleep(Math.random() * 1500 + 500);
 
       const history = conversationService.trimToTokenBudget(convo.messages.filter((m) => m.id !== assistant.id), 12000);
