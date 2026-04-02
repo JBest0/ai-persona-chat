@@ -180,6 +180,7 @@ function init() {
   sidebar.init({
     onOpenChat: openChat,
     onOpenPersonaForm: openPersonaForm,
+    onDeletePersona: deletePersona,
     onOpenSettings: openSettings,
   });
 

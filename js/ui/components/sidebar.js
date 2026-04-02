@@ -4,6 +4,7 @@ import { formatRelativeTime, truncate } from '../../utils.js';
 let handlers = {
   onOpenChat: () => {},
   onOpenPersonaForm: () => {},
+  onDeletePersona: () => {},
   onOpenSettings: () => {},
 };
 
@@ -54,10 +55,58 @@ export const sidebar = {
           </div>
           <div class="preview">${last ? truncate(last.text, 40) : 'No messages yet'}</div>
         </div>
-        ${convo.unreadCount ? `<span class="unread">${convo.unreadCount}</span>` : '<span></span>'}
+        <div class="persona-end">
+          ${convo.unreadCount ? `<span class="unread">${convo.unreadCount}</span>` : '<span></span>'}
+          <div class="persona-menu-wrap" data-id="${p.id}">
+            <button type="button" class="persona-more" aria-label="More actions for ${p.name}">...</button>
+            <div class="persona-menu hidden">
+              <button type="button" class="persona-menu-item" data-action="edit">Edit</button>
+              <button type="button" class="persona-menu-item danger" data-action="delete">Delete</button>
+            </div>
+          </div>
+        </div>
       `;
-      row.addEventListener('click', () => handlers.onOpenChat(p.id));
       list.appendChild(row);
+    });
+
+    const closeMenus = () => {
+      list.querySelectorAll('.persona-menu').forEach((menu) => menu.classList.add('hidden'));
+    };
+
+    list.addEventListener('click', (event) => {
+      const target = event.target;
+      if (!(target instanceof HTMLElement)) return;
+
+      const more = target.closest('.persona-more');
+      if (more) {
+        event.stopPropagation();
+        const wrap = more.closest('.persona-menu-wrap');
+        const menu = wrap?.querySelector('.persona-menu');
+        const opening = Boolean(menu?.classList.contains('hidden'));
+        closeMenus();
+        if (menu && opening) menu.classList.remove('hidden');
+        return;
+      }
+
+      const action = target.closest('.persona-menu-item');
+      if (action) {
+        event.stopPropagation();
+        const wrap = action.closest('.persona-menu-wrap');
+        const personaId = wrap?.dataset.id;
+        const actionType = action.dataset.action;
+        closeMenus();
+
+        if (!personaId || !actionType) return;
+        if (actionType === 'edit') handlers.onOpenPersonaForm(personaId);
+        if (actionType === 'delete' && window.confirm('Delete this persona?')) {
+          handlers.onDeletePersona(personaId);
+        }
+        return;
+      }
+
+      closeMenus();
+      const row = target.closest('.persona-item');
+      if (row?.dataset.id) handlers.onOpenChat(row.dataset.id);
     });
 
     root.querySelector('#new-persona')?.addEventListener('click', () => handlers.onOpenPersonaForm(null));
